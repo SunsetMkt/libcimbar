@@ -132,18 +132,16 @@ public:
 
 	int64_t decode_frame(const char* data, unsigned size)
 	{
-		if ((size%_chunkSize) > 0)
+		// 2nd clause is implicitly true iff 1st is... but leave it for clarity
+		if ((size%_chunkSize) > 0 or size < FountainMetadata::md_size)
 			return -10;
-
-		if (size < FountainMetadata::md_size)
-			return -11;
 
 		FountainMetadata md(data, size);
 		if (!md.file_size())
 		{
 			/*std::cout << fmt::format("decode frame {} ... {},{},{},{}",
 									 md.file_size(), (unsigned)data[0], (unsigned)data[1], (unsigned)data[2], (unsigned)data[3]) << std::endl;*/
-			return -12;
+			return -11;
 		}
 
 		// check if already done
@@ -154,7 +152,7 @@ public:
 		auto p = _streams.try_emplace(stream_slot(md), md.file_size(), _chunkSize);
 		fountain_decoder_stream& s = p.first->second;
 		if (s.data_size() != md.file_size())
-			return -13;
+			return -12;
 
 		bool finished = s.write(data, size);
 		if (!finished)
