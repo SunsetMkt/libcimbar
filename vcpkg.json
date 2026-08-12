@@ -1,7 +1,7 @@
 {
   "name": "libcimbar",
   "version-string": "0.6.7c",
-  "builtin-baseline": "ddd110b8a05cda14b8f1b0333a1d80c4fb6f16cd",
+  "builtin-baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
   "dependencies": [
     {
       "name": "angle",
