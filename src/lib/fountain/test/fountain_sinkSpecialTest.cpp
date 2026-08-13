@@ -62,7 +62,7 @@ TEST_CASE( "FountainSinkSpecialTest/testMultipart", "[unit]" )
 
 	const int totalSize = 6000000;
 	string randostr = random_string(2500);
-	std::cout << randostr << std::endl;
+	//std::cout << randostr << std::endl;
 	stringstream input = dummyContents(totalSize, randostr);
 	fountain_encoder_stream::ptr fes = fountain_encoder_stream::create(input, 750, 108);
 

@@ -74,7 +74,11 @@ TEST_CASE( "FountainSinkTest/testDefault", "[unit]" )
 	assertEquals( 2, sink.num_done() );
 
 	assertEquals( "", turbo::str::join(sink.get_progress()) );
-	assertEquals( "1.1600 0.1200", turbo::str::join(sink.get_done()) );
+	{
+		auto res = sink.get_done();
+		std::sort(res.begin(), res.end());
+		assertEquals( "0.1200 1.1600", turbo::str::join(res) );
+	}
 
 	string contents = File(tempdir.path() / "0.1200").read_all();
 	assertEquals( 1200, contents.size() );
