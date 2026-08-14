@@ -29,6 +29,10 @@ else()
 	)
 endif()
 
+if(MSVC)
+	target_compile_definitions(cimbar_js PUBLIC CIMBAR_USE_ANGLE)
+endif()
+
 target_link_libraries(cimbar_js
 
 	cimb_translator
@@ -111,7 +115,7 @@ if(DEFINED USE_WASM)
 
 else()  # if no wasm, ignore all that and add in GLFW libraries
 	target_link_libraries(cimbar_js
-		GL
+		${PLATFORM_GL}
 		glfw
 	)
 endif()
