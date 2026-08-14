@@ -37,7 +37,7 @@ TEST_CASE( "EncoderRoundTripTest/testFountain.Pad", "[unit]" )
 	std::string outPrefix = tempdir.path() / "encoder.fountain";
 
 	{
-		std::ofstream f(inputFile);
+		std::ofstream f(inputFile, std::ios::binary);
 		f << "hello"; // 5 bytes!
 	}
 
@@ -88,7 +88,7 @@ TEST_CASE( "EncoderRoundTripTest/testFountain.SinkMismatch", "[unit]" )
 	std::string outPrefix = tempdir.path() / "encoder.fountain";
 
 	{
-		std::ofstream f(inputFile);
+		std::ofstream f(inputFile, std::ios::binary);
 		f << "hello"; // 5 bytes!
 	}
 
