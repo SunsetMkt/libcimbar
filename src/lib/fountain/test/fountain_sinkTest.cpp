@@ -54,7 +54,7 @@ TEST_CASE( "FountainSinkTest/testDefault", "[unit]" )
 {
 	MakeTempDirectory tempdir;
 
-	fountain_decoder_sink sink(690, write_on_store<std::ofstream>(tempdir.path()));
+	fountain_decoder_sink sink(690, write_on_store<std::ofstream>(tempdir.path().string()));
 	string iframe = createFrame(0, 1200);
 	assertEquals( 6900, iframe.size() );
 
@@ -74,7 +74,11 @@ TEST_CASE( "FountainSinkTest/testDefault", "[unit]" )
 	assertEquals( 2, sink.num_done() );
 
 	assertEquals( "", turbo::str::join(sink.get_progress()) );
-	assertEquals( "1.1600 0.1200", turbo::str::join(sink.get_done()) );
+	{
+		auto res = sink.get_done();
+		std::sort(res.begin(), res.end());
+		assertEquals( "0.1200 1.1600", turbo::str::join(res) );
+	}
 
 	string contents = File(tempdir.path() / "0.1200").read_all();
 	assertEquals( 1200, contents.size() );
@@ -86,7 +90,7 @@ TEST_CASE( "FountainSinkTest/testMultipart", "[unit]" )
 {
 	MakeTempDirectory tempdir;
 
-	fountain_decoder_sink sink(690, write_on_store<std::ofstream>(tempdir.path()));
+	fountain_decoder_sink sink(690, write_on_store<std::ofstream>(tempdir.path().string()));
 
 	stringstream input = dummyContents(20000);
 	fountain_encoder_stream::ptr fes = fountain_encoder_stream::create(input, 690, 2);
@@ -117,7 +121,7 @@ TEST_CASE( "FountainSinkTest/testSameFrameManyTimes", "[unit]" )
 	// sometimes it's fine. The docs say "don't do it", so FountainDecoder acts as the bouncer.
 	MakeTempDirectory tempdir;
 
-	fountain_decoder_sink sink(690, write_on_store<std::ofstream>(tempdir.path()));
+	fountain_decoder_sink sink(690, write_on_store<std::ofstream>(tempdir.path().string()));
 
 	stringstream input = dummyContents(20000);
 	fountain_encoder_stream::ptr fes = fountain_encoder_stream::create(input, 690, 3);
