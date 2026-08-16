@@ -143,3 +143,62 @@ TEST_CASE( "FountainSinkTest/testSameFrameManyTimes", "[unit]" )
 	assertEquals( "0.333333", turbo::str::join(sink.get_progress()) ); // 33% done
 	assertEquals( "", turbo::str::join(sink.get_done()) );
 }
+
+TEST_CASE( "FountainSinkTest/testRejection", "[unit]" )
+{
+	MakeTempDirectory tempdir;
+	fountain_decoder_sink sink(625, write_on_store<std::ofstream>(tempdir.path().string()));
+
+	stringstream input1 = dummyContents(2000);
+	fountain_encoder_stream::ptr fes1 = fountain_encoder_stream::create(input1, 625, 1);
+
+	// a non-rejection, first
+	{
+		std::array<char, 625> buff;
+		unsigned res = fes1->readsome(buff.data(), buff.size());
+		assertEquals( res, buff.size() );
+
+		// incomplete
+		assertEquals( 0, sink.decode_frame(buff.data(), buff.size()) );
+	}
+
+	// bad buffer sizes
+	{
+		std::array<char, 625> buff;
+		unsigned res = fes1->readsome(buff.data(), buff.size());
+		assertEquals( res, buff.size() );
+
+		// smaller than fountain header
+		assertEquals( -10, sink.decode_frame(buff.data(), 5) );
+
+		// not the right chunk size
+		assertEquals( -10, sink.decode_frame(buff.data(), 620) );
+	}
+
+	// bad FountainMetadata
+	{
+		std::array<char, 625> buff;
+		unsigned res = fes1->readsome(buff.data(), buff.size());
+		assertEquals( res, buff.size() );
+
+		// extract and clobber
+		FountainMetadata md(buff.data(), FountainMetadata::md_size);
+		md = FountainMetadata(md.encode_id(), 0, md.block_id());
+		std::memcpy(buff.data(), md.data(), FountainMetadata::md_size);
+
+		assertEquals( -11, sink.decode_frame(buff.data(), buff.size()) );
+	}
+
+	// different size, same encode_id
+	{
+		stringstream input2 = dummyContents(1000);
+		fountain_encoder_stream::ptr fes2 = fountain_encoder_stream::create(input2, 625, 1);
+
+		std::array<char, 625> buff;
+		unsigned res = fes2->readsome(buff.data(), buff.size());
+		assertEquals( res, buff.size() );
+
+		// slot taken
+		assertEquals( -12, sink.decode_frame(buff.data(), buff.size()) );
+	}
+}
