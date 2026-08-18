@@ -110,7 +110,6 @@ var Main = function () {
       _ww.postMessage({ fun: 'nextFrame', args: [] });
     },
 
-
     check_GL_enabled: function () {
       var testCanvas = document.createElement('canvas');
       if (!testCanvas.getContext("webgl2") && !testCanvas.getContext("webgl")) {
